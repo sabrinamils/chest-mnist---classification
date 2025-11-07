@@ -1,4 +1,13 @@
-import torch
+try:
+    import torch
+except ModuleNotFoundError as e:
+    raise ModuleNotFoundError(
+        "Module 'torch' tidak ditemukan. Pastikan virtualenv aktif dan jalankan:\n"
+        "& .venv\\Scripts\\python.exe -m pip install --upgrade pip\n"
+        "& .venv\\Scripts\\python.exe -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu\n"
+        "Lalu jalankan ulang skrip."
+    ) from e
+
 import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
