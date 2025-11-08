@@ -80,25 +80,40 @@ class FilteredBinaryDataset(Dataset):
         return image, torch.tensor([label])
 
 def get_data_loaders(batch_size):
-    data_transform = transforms.Compose([
+    # --- Augmentasi data untuk training ---
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(28, scale=(0.9, 1.0)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
         transforms.ToTensor(),
         transforms.Normalize(mean=[.5], std=[.5]),
     ])
 
-    train_dataset = FilteredBinaryDataset('train', data_transform)
-    val_dataset = FilteredBinaryDataset('test', data_transform)
-    
-    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
-    
+    # --- Transformasi untuk validasi (tanpa augmentasi) ---
+    val_transform = transforms.Compose([
+        transforms.CenterCrop(28),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[.5], std=[.5]),
+    ])
+
+    # --- Buat dataset ---
+    train_dataset = FilteredBinaryDataset('train', transform=train_transform)
+    val_dataset = FilteredBinaryDataset('test', transform=val_transform)
+
+    # --- Buat DataLoader ---
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+
+    # --- Informasi dataset ---
     n_classes = 2
     n_channels = 1
-    
+
     print("Dataset ChestMNIST berhasil difilter untuk klasifikasi biner!")
-    print(f"Kelas yang digunakan: {NEW_CLASS_NAMES[0]} (Label 0) dan {NEW_CLASS_NAMES[1]} (Label 1)")
+    print(f"Kelas: {NEW_CLASS_NAMES[0]} (0) dan {NEW_CLASS_NAMES[1]} (1)")
     print(f"Jumlah data training: {len(train_dataset)}")
     print(f"Jumlah data validasi: {len(val_dataset)}")
-    
+
+    # --- Return seperti sebelumnya ---
     return train_loader, val_loader, n_classes, n_channels
 
 def show_samples(dataset):

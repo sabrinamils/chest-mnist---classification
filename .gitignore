@@ -1,3 +1,4 @@
 /.venv
 /chestmnist.npz
 /__pycache__
+.python-version
